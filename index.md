@@ -54,7 +54,7 @@ You can change many parameters:
 
 
 If someone with a 60000$ per year salary and no initial savings saves 50% of his/her salary and invest it into a 8% per year investment (S&P500 is around 11%), then he/she will achieve financial independence in 12 years.
-Of course, such an investment would have some variance; try my application to get a more detailed simulation.
+Of course, such an investment would have some variance; try my application to get a more detailed simulation ;).
 
 ```r
 print(simulation_plot(input))
