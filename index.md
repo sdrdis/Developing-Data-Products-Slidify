@@ -1,5 +1,5 @@
 ---
-title       : How to become financially independent
+title       : When will you become financially independent
 subtitle    : 
 author      : Sébastien Drouyer
 job         : Computer science engineer
