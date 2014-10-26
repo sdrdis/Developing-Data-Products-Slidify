@@ -1,0 +1,114 @@
+---
+title       : How to become financially independent
+subtitle    : 
+author      : Sébastien Drouyer
+job         : Computer science engineer
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : []            # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {standalone, draft}
+knit        : slidify::knit2slides
+---
+
+## What is financial independence
+
+* Financial independence is generally used to describe the state of having sufficient personal wealth to live, without having to work actively for basic necessities. [[`Wikipedia`](https://en.wikipedia.org/wiki/Financial_independence)]
+
+
+* It means you earn more from your assets (investments) than you need to spend.
+
+* Though it helps, you don't have to get a huge salary to become financially independent.
+
+
+* For instance, if Bob need to spend 1000$ each month, and receive 1100$ each month from his investments, he is financially independent. If Steve spends 200,000$ each month but receive 100,000 from his investments, he is not financially independent.
+
+--- .class #id 
+
+## Why achieve financial independence
+
+There can be many reasons:
+
+* Freedom: you don't have to work anymore in order to live. Once you achieve financial independence, you can keep working, but you can also start a business, follow your passions, or go into an indefinite vacations...
+
+* Security: if anything should happen, you have a solid safety net that will prevent you or you family to end up in the street.
+
+* Retirement: of course, this is an obvious objective.
+
+* Confidence and personal satisfaction: by knowing that you have a solid safety net and achieved a difficult objective.
+
+--- .class #id 
+
+## How to achieve it?
+
+You can change many parameters:
+
+* Spend less and save: saving is a crucial if you want to achieve financial independence. It can mean living in a smaller house than you can afford to for instance. For some people it can be difficult, but you generally don't notice it after a while.
+
+* Earn more and save: if you can't spend less, you need to get an alternate source of income. You can start a small business or work additional hours if necessary.
+
+* Invest: Investing your saved money is important if you want to receive earnings from it. Many different solutions (such as bonds or stocks) exist.
+
+--- .class #id 
+## An example
+
+```{r, echo=FALSE}
+library(ggplot2)
+simulation_plot <- function(input) {
+        salaries <- matrix(input$initial_salary, input$simulation_length, 1)
+        revenue_from_savings <- matrix(0, input$simulation_length, 1)
+        savings  <- matrix(input$initial_savings, input$simulation_length, 1)
+        financially_independent = -1 # expense rate
+        savings_revenue_superior_to_salary = -1
+        for (i in 1:input$simulation_length) {
+                salaries[i,1] = input$initial_salary * (1.0 + (input$estimated_raise_per_year / 100.0)) ^ (i - 1)
+                salaries[i,1] = salaries[i,1] * rnorm(1, mean=1, sd=(input$salary_variance/100.0))
+                if (i > 1) {
+                        this_year_return_rate <- rnorm(1, mean= (input$investment_returns / 100.0), sd=(input$investment_returns_variance/100.0))
+                        revenue_from_savings[i, 1] = savings[i - 1] * this_year_return_rate
+                        if (revenue_from_savings[i, 1] > salaries[i,1] && savings_revenue_superior_to_salary == -1) {
+                                savings_revenue_superior_to_salary = i
+                        }
+                        if ((revenue_from_savings[i, 1] > salaries[i - 1, 1] * (100.0 - input$salary_saving_rate) / 100.0) && financially_independent == -1) {
+                                financially_independent = i
+                        }
+                        
+                        savings[i, 1] = savings[i - 1] + revenue_from_savings[i, 1] + salaries[i - 1, 1] * input$salary_saving_rate / 100.0
+                }
+        }
+        
+        salaries <- data.frame(year=1:input$simulation_length, value=salaries)
+        savings <- data.frame(year=1:input$simulation_length, value=savings)
+        revenue_from_savings <- data.frame(year=1:input$simulation_length, value=revenue_from_savings)
+        p <- ggplot() + 
+                geom_line(data = salaries, aes(x = year, y = value, color = "Salary")) +
+                geom_line(data = savings, aes(x = year, y = value, color = "Savings"))  +
+                geom_line(data = revenue_from_savings, aes(x = year, y = value, color = "Returns"))  +
+                xlab('Year') +
+                ylab('Money') +
+                labs(color="Legend")
+        if (financially_independent > -1) {
+                p <- p + geom_vline(xintercept = financially_independent, linetype = "longdash")
+        }
+        if (savings_revenue_superior_to_salary > -1) {
+                p <- p + geom_vline(xintercept = savings_revenue_superior_to_salary)
+        }
+        
+        return (p)
+}
+
+input = c()
+input$simulation_length = 30
+input$initial_savings = 0
+input$estimated_raise_per_year = 2
+input$salary_variance = 0
+input$investment_returns_variance = 0
+input$initial_salary = 60000
+input$salary_saving_rate = 50
+input$investment_returns = 8
+```
+If someone with a 60000$ per year salary and no initial savings saves 50% of his/her salary and invest it into a 8% per year investment (S&P500 is around 11%), then he/she will achieve financial independence in 12 years.
+Of course, such an investment would have some variance; try my application to get a more detailed simulation.
+```{r, fig.height=4, fig.width=7, fig.align='center'}
+print(simulation_plot(input))
+```
